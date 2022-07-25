@@ -112,7 +112,7 @@ function App() {
 
     return (
         <div className="app">
-            <h1>Hospitals</h1>
+            <h1>CRM USERS</h1>
             {hospitals.map((hospital) =>
                 activeId === hospital.id ? (
                     <form
