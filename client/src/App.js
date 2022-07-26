@@ -9,20 +9,18 @@ function App() {
         id: null,
         email: '',
         first_name: '',
-        last_name: '',
+        mobile_number: '',
     });
-    console.log(hospitalData)
+    
     const [message, setMessage] = useState();
 
     useEffect(() => {
         fetchHospitals();
     }, []);
-
     function fetchHospitals() {
         axios
-            .get('https://reqres.in/api/users')
+            .get('https://crm2.wewebit.com/v1/test/account-list')
             .then((response) => {
-              console.log(response.data.data); 
                 const dbOpenRequest = indexedDB.open('hospitalDB', 1);
                 dbOpenRequest.onupgradeneeded = function (event) {
                     const db = event.target.result;
@@ -67,47 +65,64 @@ function App() {
     function handleDataChange(e, key) {
         setHospitalData({
             ...hospitalData,
-            [key]: parseInt(e.target.value),
+            [key]: e.target.value,
         });
     }
 
+
+
+
+
+
     function handleSubmit(e) {
+        console.log("activeId",activeId);
         e.preventDefault();
-        axios
-            .post(`https://reqres.in/api/users/${activeId}`, hospitalData)
-            .then(() => {
-                setMessage('Data saved successfully');
-                setActiveId(null);
-                fetchHospitals();
-                setTimeout(() => {
-                    setMessage(null);
-                }, 5000);
-            })
-            .catch(() => {
-                setMessage('Data saved for syncing');
-                setActiveId(null);
-                setHospitals((hospitals) => {
-                    const index = hospitals.findIndex(
-                        (h) => h.id === hospitalData.id
-                    );
-                    if (index !== -1) {
-                        const newHospitals = hospitals.slice();
-                        newHospitals[index] = hospitalData;
-                        return newHospitals;
-                    }
-                    return hospitals;
-                });
-                const dbOpenRequest = indexedDB.open('hospitalDB', 1);
-                dbOpenRequest.onsuccess = function (event) {
-                    const db = event.target.result;
-                    const txn = db.transaction('hospitalStore', 'readwrite');
-                    const store = txn.objectStore('hospitalStore');
-                    store.put(hospitalData);
-                };
-                setTimeout(() => {
-                    setMessage(null);
-                }, 5000);
-            });
+
+        var formdata = new FormData();
+        formdata.append("first_name", hospitalData.first_name);
+        formdata.append("mobile_number", hospitalData.mobile_number);
+        var requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow'
+          };
+          fetch(`https://crm2.wewebit.com/v1/test/account-update/${activeId}`, requestOptions)
+  .then(response => response.text())
+  .then(result => {
+    setMessage('Data saved successfully');
+    setActiveId(null);
+    fetchHospitals();
+    setTimeout(() => {
+        setMessage(null);
+    }, 5000);
+  })
+  .catch(() => {
+    setMessage('Data saved for syncing');
+    setActiveId(null);
+    setHospitals((hospitals) => {
+        const index = hospitals.findIndex(
+            (h) => h.id === hospitalData.id
+        );
+        if (index !== -1) {
+            const newHospitals = hospitals.slice();
+            newHospitals[index] = hospitalData;
+            return newHospitals;
+        }
+        return hospitals;
+    });
+    const dbOpenRequest = indexedDB.open('hospitalDB', 1);
+    dbOpenRequest.onsuccess = function (event) {
+        const db = event.target.result;
+        const txn = db.transaction('hospitalStore', 'readwrite');
+        const store = txn.objectStore('hospitalStore');
+        store.put(hospitalData);
+    };
+    setTimeout(() => {
+        setMessage(null);
+    }, 5000);
+});
+
+        
     }
 
     return (
@@ -132,11 +147,11 @@ function App() {
                             />
                         </div>
                         <div className="form__control">
-                            <label>last_name</label>
+                            <label>mobile_number</label>
                             <input
                                 type="text"
-                                value={hospitalData.last_name}
-                                onChange={(e) => handleDataChange(e, 'last_name')}
+                                value={hospitalData.mobile_number}
+                                onChange={(e) => handleDataChange(e, 'mobile_number')}
                             />
                         </div>
                        
@@ -156,7 +171,7 @@ function App() {
                     <div key={hospital.id} className="card">
                         <h3>{hospital.email}</h3>
                         <div>first_name: {hospital.first_name}</div>
-                        <div>last_name: {hospital.last_name}</div>
+                        <div>mobile_number: {hospital.mobile_number}</div>
                         <div className="buttons">
                             <button
                                 className="button"
