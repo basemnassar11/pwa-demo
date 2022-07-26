@@ -71,9 +71,6 @@ function App() {
 
 
 
-
-
-
     function handleSubmit(e) {
         console.log("activeId",activeId);
         e.preventDefault();

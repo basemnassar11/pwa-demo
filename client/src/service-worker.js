@@ -75,7 +75,7 @@ self.addEventListener('message', (event) => {
 const bgSyncPlugin = new BackgroundSyncPlugin('hospital-queue');
 
 registerRoute(
-    /.*\/hospital\/.*/,
+    /.*\/account-update\/.*/,
     new NetworkOnly({
         plugins: [bgSyncPlugin],
     }),
